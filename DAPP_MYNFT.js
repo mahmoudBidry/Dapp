@@ -1,7 +1,3 @@
-/*
-contract address => 0x576A133b263bB17a627d98f0FEefc9Dc05C16e93
-*/
-
 var account = null;
 var contract = null;
 var minQuantity = null;
@@ -83,19 +79,6 @@ var ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "quantity",
-				"type": "uint256"
-			}
-		],
-		"name": "mintNFT",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -119,6 +102,24 @@ var ABI = [
 		"name": "renounceOwnership",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "quantity",
+				"type": "uint256"
+			}
+		],
+		"name": "safeMint",
+		"outputs": [],
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -191,19 +192,6 @@ var ABI = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "bool",
-				"name": "isPublicMintEnabled_",
-				"type": "bool"
-			}
-		],
-		"name": "setisPublicMintEnabled",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -227,29 +215,6 @@ var ABI = [
 		],
 		"name": "Transfer",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "transferBetweenWallets",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	},
 	{
 		"inputs": [
@@ -358,12 +323,12 @@ var ABI = [
 	},
 	{
 		"inputs": [],
-		"name": "isPublicMintEnabled",
+		"name": "link",
 		"outputs": [
 			{
-				"internalType": "bool",
+				"internalType": "string",
 				"name": "",
-				"type": "bool"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -385,6 +350,19 @@ var ABI = [
 	{
 		"inputs": [],
 		"name": "maxSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "minQuantity",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -561,7 +539,7 @@ var ABI = [
 		"type": "function"
 	}
 ];
-var contractAddress = "0x9256E378452D2f63446918FfA3E686E74c70A9f6";
+var contractAddress = "0xe75F1A6b3c51fdcE2bFa20b6Ad8af6289156e49E";
 
 ( async() => {
     if(window.ethereum){
@@ -576,7 +554,7 @@ var contractAddress = "0x9256E378452D2f63446918FfA3E686E74c70A9f6";
         document.getElementById("maxSupply").textContent = await contract.methods.maxSupply().call();
         mintPrice = await contract.methods.mintPrice().call();
         maxQuantity = await contract.methods.maxPerWallet().call();
-        minQuantity = 1;
+        minQuantity = await contract.methods.minQuantity().call();
 
 
     updateTotalSupply();
@@ -609,7 +587,7 @@ document.getElementById("mint").onclick = () =>{
 }
 
 const mint = async() =>{
-	await contract.methods.mintNFT(quantity).send({from : account, value : (mintPrice * quantity).toString()})
+	await contract.methods.safeMint(account, quantity).send({from : account, value : (mintPrice * quantity).toString()})
     updateTotalSupply();
     //alert(typeof( (mintPrice * quantity).toString() ));
 }
